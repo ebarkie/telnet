@@ -1,6 +1,7 @@
 # Telnet
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](http://choosealicense.com/licenses/mit/)
+[![Build Status](https://travis-ci.org/ebarkie/telnet.svg?branch=master)](https://travis-ci.org/ebarkie/telnet)
 
 Go package for creating a Telnet protocol ReadWriter, which would typically be
 used to create a TCP telnet server.
