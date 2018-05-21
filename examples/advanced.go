@@ -39,10 +39,8 @@ func negotiate(conn net.Conn, wait time.Duration, opts ...telnet.Option) (*telne
 }
 
 func serve(conn net.Conn) {
-	defer func() {
-		log.Printf("Connection from %s closed", conn.RemoteAddr())
-		conn.Close()
-	}()
+	defer conn.Close()
+	defer log.Printf("Connection from %s closed", conn.RemoteAddr())
 
 	// Create telnet ReadWriter with character mode enabled.
 	term := &option.Term{}

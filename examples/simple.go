@@ -9,10 +9,8 @@ import (
 )
 
 func serve(conn net.Conn) {
-	defer func() {
-		log.Printf("Connection from %s closed", conn.RemoteAddr())
-		conn.Close()
-	}()
+	defer conn.Close()
+	defer log.Printf("Connection from %s closed", conn.RemoteAddr())
 
 	// Create telnet ReadWriter with no options.
 	tn := telnet.NewReadWriter(conn)
