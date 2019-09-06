@@ -91,6 +91,6 @@ func main() {
 
 ## License
 
-Copyright (c) 2018 Eric Barkie. All rights reserved.  
+Copyright (c) 2018-2019 Eric Barkie. All rights reserved.  
 Use of this source code is governed by the MIT license
 that can be found in the [LICENSE](LICENSE) file.
