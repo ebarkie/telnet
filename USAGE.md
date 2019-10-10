@@ -1,7 +1,7 @@
 # telnet
 
 ```go
-import "github.com/ebarkie/telnet"
+import "gitlab.com/ebarkie/telnet"
 ```
 
 Package telnet implements the RFC854 Telnet Protocol Specification, as well as:
