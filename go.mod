@@ -1,3 +1,3 @@
-module github.com/ebarkie/telnet
+module gitlab.com/ebarkie/telnet
 
 go 1.13

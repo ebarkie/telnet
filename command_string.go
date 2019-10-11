@@ -4,6 +4,32 @@ package telnet
 
 import "strconv"
 
+func _() {
+	// An "invalid array index" compiler error signifies that the constant values have changed.
+	// Re-run the stringer command to generate them again.
+	var x [1]struct{}
+	_ = x[EOF-236]
+	_ = x[SP-237]
+	_ = x[AP-238]
+	_ = x[EOR-239]
+	_ = x[se-240]
+	_ = x[NOP-241]
+	_ = x[DM-242]
+	_ = x[BRK-243]
+	_ = x[IP-244]
+	_ = x[AO-245]
+	_ = x[AYT-246]
+	_ = x[EC-247]
+	_ = x[EL-248]
+	_ = x[GA-249]
+	_ = x[sb-250]
+	_ = x[will-251]
+	_ = x[wont-252]
+	_ = x[do-253]
+	_ = x[dont-254]
+	_ = x[iac-255]
+}
+
 const _Command_name = "EOFSPAPEORseNOPDMBRKIPAOAYTECELGAsbwillwontdodontiac"
 
 var _Command_index = [...]uint8{0, 3, 5, 7, 10, 12, 15, 17, 20, 22, 24, 27, 29, 31, 33, 35, 39, 43, 45, 49, 52}
