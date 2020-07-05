@@ -7,8 +7,8 @@ import (
 	"os"
 	"time"
 
-	"gitlab.com/ebarkie/telnet"
-	"gitlab.com/ebarkie/telnet/option"
+	"github.com/ebarkie/telnet"
+	"github.com/ebarkie/telnet/option"
 )
 
 // negotiate creates a telnet ReadWriter, asks for character mode options, and blocks until

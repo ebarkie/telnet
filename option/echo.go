@@ -4,7 +4,7 @@
 
 package option
 
-import "gitlab.com/ebarkie/telnet"
+import "github.com/ebarkie/telnet"
 
 // Echo is the RFC857 Telnet Echo Option.
 type Echo struct {

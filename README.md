@@ -27,7 +27,7 @@ Specifications:
 ## Installation
 
 ```
-$ go get gitlab.com/ebarkie/telnet{,/option}
+$ go get github.com/ebarkie/telnet{,/option}
 ```
 
 ## Usage
@@ -44,7 +44,7 @@ import (
 	"log"
 	"net"
 
-	"gitlab.com/ebarkie/telnet"
+	"github.com/ebarkie/telnet"
 )
 
 func serve(conn net.Conn) {

@@ -5,7 +5,7 @@ import (
 	"log"
 	"net"
 
-	"gitlab.com/ebarkie/telnet"
+	"github.com/ebarkie/telnet"
 )
 
 func serve(conn net.Conn) {

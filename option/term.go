@@ -4,7 +4,7 @@
 
 package option
 
-import "gitlab.com/ebarkie/telnet"
+import "github.com/ebarkie/telnet"
 
 // Term is the RFC1091 Telnet Terminal-Type Option.
 type Term struct {

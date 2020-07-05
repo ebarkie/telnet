@@ -1,3 +1,3 @@
-module gitlab.com/ebarkie/telnet
+module github.com/ebarkie/telnet
 
-go 1.13
+go 1.14

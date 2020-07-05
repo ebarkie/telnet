@@ -4,7 +4,7 @@
 
 package option
 
-import "gitlab.com/ebarkie/telnet"
+import "github.com/ebarkie/telnet"
 
 // SGA is the RFC858 Telnet Suppress Go Ahead Option.
 type SGA struct{}
