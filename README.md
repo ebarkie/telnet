@@ -1,3 +1,5 @@
+![Push](https://github.com/ebarkie/telnet/workflows/Push/badge.svg)
+
 # Telnet
 
 Go package for creating a Telnet protocol ReadWriter, which would typically be
@@ -88,6 +90,6 @@ func main() {
 
 ## License
 
-Copyright (c) 2018-2019 Eric Barkie. All rights reserved.  
+Copyright (c) 2018-2020 Eric Barkie. All rights reserved.  
 Use of this source code is governed by the MIT license
 that can be found in the [LICENSE](LICENSE) file.
