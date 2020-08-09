@@ -12,7 +12,7 @@ import (
 
 // Errors.
 var (
-	ErrNegAskDenied = errors.New("Ask violates let")
+	ErrNegAskDenied = errors.New("ask violates let")
 )
 
 // negState is a RFC1143 option negotiation state.
