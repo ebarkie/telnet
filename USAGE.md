@@ -22,7 +22,7 @@ Loggers.
 
 ```go
 var (
-	ErrNegAskDenied = errors.New("Ask violates let")
+	ErrNegAskDenied = errors.New("ask violates let")
 )
 ```
 Errors.
