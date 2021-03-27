@@ -5,13 +5,13 @@
 package telnet
 
 import (
-	"io/ioutil"
+	"io"
 	"log"
 )
 
 // Loggers.
 var (
-	Trace = log.New(ioutil.Discard, "[TRCE]", log.LstdFlags|log.Lmicroseconds|log.Lshortfile)
-	Debug = log.New(ioutil.Discard, "[DBUG]", log.LstdFlags|log.Lshortfile)
-	Error = log.New(ioutil.Discard, "[ERRO]", log.LstdFlags|log.Lshortfile)
+	Trace = log.New(io.Discard, "[TRCE]", log.LstdFlags|log.Lmicroseconds|log.Lshortfile)
+	Debug = log.New(io.Discard, "[DBUG]", log.LstdFlags|log.Lshortfile)
+	Error = log.New(io.Discard, "[ERRO]", log.LstdFlags|log.Lshortfile)
 )
