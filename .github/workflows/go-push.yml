@@ -19,7 +19,7 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v2
 
-      - name: Run Go 1.17 pipeline
-        uses: ebarkie/actions/go/1.17@master
+      - name: Run Go 1.19 pipeline
+        uses: ebarkie/actions/go/1.19@master
         with:
           get: golang.org/x/tools/cmd/stringer
