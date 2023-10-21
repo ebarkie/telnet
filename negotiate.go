@@ -172,13 +172,13 @@ func (t *Ctx) negotiate(cmd Command, code byte) (err error) {
 		case nsYes:
 			// Ignore
 		case nsWantNo:
-			err = fmt.Errorf("%s option %s answered answered by %s", wont, s.opt, do)
+			err = fmt.Errorf("%s option %s answered by %s", wont, s.opt, do)
 			s.us = nsNo
 
 			Debug.Printf("Option %s disabled for us", s.opt)
 			s.opt.SetUs(t, false)
 		case nsWantNoOpp:
-			err = fmt.Errorf("%s option %s answered answered by %s", wont, s.opt, do)
+			err = fmt.Errorf("%s option %s answered by %s", wont, s.opt, do)
 			fallthrough
 		case nsWantYes:
 			s.us = nsYes
