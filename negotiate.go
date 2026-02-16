@@ -227,9 +227,7 @@ func (t *Ctx) negotiate(cmd Command, code byte) (err error) {
 
 func (t *Ctx) subnegotiate(code byte, params []byte) {
 	s := t.os.load(code)
-	slog.Debug("subnegotiation option", "opt", s.opt)
-
-	slog.Debug("subnegotiation parameters", "params", hex.Dump(params))
+	slog.Debug("subnegotiation", "opt", s.opt, "params", hex.Dump(params))
 
 	t.mu.Unlock()
 	s.opt.Params(t, params)

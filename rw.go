@@ -4,7 +4,10 @@
 
 package telnet
 
-import "log/slog"
+import (
+	"bytes"
+	"log/slog"
+)
 
 // readState is the state of the Reader.
 type readState uint
@@ -54,7 +57,7 @@ func (t *Ctx) read(b []byte) (n int, err error) {
 	num, err = t.rw.Read(buf)
 
 	t.mu.Lock()
-	for i := 0; i < num; i++ {
+	for i := range num {
 		switch t.rs {
 		case rsData:
 			// In data mode if an Interpret as Command is not received then
@@ -136,13 +139,7 @@ func (t *Ctx) read(b []byte) (n int, err error) {
 // Any Interpret as Command bytes are escaped and the result is written
 // using the Writer provided by the client.
 func (t *Ctx) Write(b []byte) (int, error) {
-	buf := make([]byte, 0, len(b))
-	for _, c := range b {
-		buf = append(buf, c)
-		if c == byte(iac) {
-			buf = append(buf, c)
-		}
-	}
+	buf := bytes.ReplaceAll(b, []byte{byte(iac)}, []byte{byte(iac), byte(iac)})
 
 	t.mu.Lock()
 	_, err := t.rw.Write(buf)
