@@ -8,6 +8,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"log/slog"
 )
 
 // Errors.
@@ -29,12 +30,12 @@ const (
 
 func (t *Ctx) indicate(cmd Command, code byte) {
 	s := t.os.load(code)
-	Trace.Printf("Indicating %s option %s", cmd, s.opt)
+	slog.Debug("indicating option", "cmd", cmd, "opt", s.opt)
 	t.rw.Write([]byte{byte(iac), byte(cmd), code})
 }
 
 func (t *Ctx) ask(cmd Command, opt Option) (err error) {
-	Trace.Printf("Asking %s option %s", cmd, opt)
+	slog.Debug("asking option", "cmd", cmd, "opt", opt)
 	s := t.os.load(opt.Byte())
 
 	switch cmd {
@@ -99,7 +100,7 @@ func (t *Ctx) ask(cmd Command, opt Option) (err error) {
 
 func (t *Ctx) negotiate(cmd Command, code byte) (err error) {
 	s := t.os.load(code)
-	Trace.Printf("Received %s option %s", cmd, s.opt)
+	slog.Debug("received option", "cmd", cmd, "opt", s.opt)
 
 	var callback func(*Ctx, bool)
 	var enabled bool
@@ -114,7 +115,7 @@ func (t *Ctx) negotiate(cmd Command, code byte) (err error) {
 				t.indicate(do, code)
 				s.him = nsYes
 
-				Debug.Printf("Option %s enabled for him", s.opt)
+				slog.Debug("option enabled for him", "opt", s.opt)
 				callback, enabled = s.opt.SetHim, true
 			} else {
 				t.indicate(dont, code)
@@ -125,7 +126,7 @@ func (t *Ctx) negotiate(cmd Command, code byte) (err error) {
 			err = fmt.Errorf("%s option %s answered by %s", dont, s.opt, will)
 			s.him = nsNo
 
-			Debug.Printf("Option %s disabled for him", s.opt)
+			slog.Debug("option disabled for him", "opt", s.opt)
 			callback, enabled = s.opt.SetHim, false
 		case nsWantNoOpp:
 			err = fmt.Errorf("%s option %s answered by %s", dont, s.opt, will)
@@ -133,7 +134,7 @@ func (t *Ctx) negotiate(cmd Command, code byte) (err error) {
 		case nsWantYes:
 			s.him = nsYes
 
-			Debug.Printf("Option %s enabled for him", s.opt)
+			slog.Debug("option enabled for him", "opt", s.opt)
 			callback, enabled = s.opt.SetHim, true
 		case nsWantYesOpp:
 			t.indicate(dont, code)
@@ -152,7 +153,7 @@ func (t *Ctx) negotiate(cmd Command, code byte) (err error) {
 		case nsWantNo, nsWantYes, nsWantYesOpp:
 			s.him = nsNo
 
-			Debug.Printf("Option %s disabled for him", s.opt)
+			slog.Debug("option disabled for him", "opt", s.opt)
 			callback, enabled = s.opt.SetHim, false
 		case nsWantNoOpp:
 			t.indicate(do, code)
@@ -167,7 +168,7 @@ func (t *Ctx) negotiate(cmd Command, code byte) (err error) {
 				t.indicate(will, code)
 				s.us = nsYes
 
-				Debug.Printf("Option %s enabled for us", s.opt)
+				slog.Debug("option enabled for us", "opt", s.opt)
 				callback, enabled = s.opt.SetUs, true
 			} else {
 				t.indicate(wont, code)
@@ -178,7 +179,7 @@ func (t *Ctx) negotiate(cmd Command, code byte) (err error) {
 			err = fmt.Errorf("%s option %s answered by %s", wont, s.opt, do)
 			s.us = nsNo
 
-			Debug.Printf("Option %s disabled for us", s.opt)
+			slog.Debug("option disabled for us", "opt", s.opt)
 			callback, enabled = s.opt.SetUs, false
 		case nsWantNoOpp:
 			err = fmt.Errorf("%s option %s answered by %s", wont, s.opt, do)
@@ -186,7 +187,7 @@ func (t *Ctx) negotiate(cmd Command, code byte) (err error) {
 		case nsWantYes:
 			s.us = nsYes
 
-			Debug.Printf("Option %s enabled for us", s.opt)
+			slog.Debug("option enabled for us", "opt", s.opt)
 			callback, enabled = s.opt.SetUs, true
 		case nsWantYesOpp:
 			t.indicate(wont, code)
@@ -205,7 +206,7 @@ func (t *Ctx) negotiate(cmd Command, code byte) (err error) {
 		case nsWantNo, nsWantYes, nsWantYesOpp:
 			s.us = nsNo
 
-			Debug.Printf("Option %s disabled for us", s.opt)
+			slog.Debug("option disabled for us", "opt", s.opt)
 			callback, enabled = s.opt.SetUs, false
 		case nsWantNoOpp:
 			t.indicate(will, code)
@@ -226,9 +227,9 @@ func (t *Ctx) negotiate(cmd Command, code byte) (err error) {
 
 func (t *Ctx) subnegotiate(code byte, params []byte) {
 	s := t.os.load(code)
-	Trace.Printf("Subnegotation option %s", s.opt)
+	slog.Debug("subnegotiation option", "opt", s.opt)
 
-	Trace.Printf("Parameters\n%s", hex.Dump(params))
+	slog.Debug("subnegotiation parameters", "params", hex.Dump(params))
 
 	t.mu.Unlock()
 	s.opt.Params(t, params)

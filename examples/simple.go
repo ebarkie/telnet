@@ -2,7 +2,7 @@ package main
 
 import (
 	"io"
-	"log"
+	"log/slog"
 	"net"
 
 	"github.com/ebarkie/telnet"
@@ -10,7 +10,7 @@ import (
 
 func serve(conn net.Conn) {
 	defer conn.Close()
-	defer log.Printf("Connection from %s closed", conn.RemoteAddr())
+	defer slog.Info("connection closed", "addr", conn.RemoteAddr())
 
 	// Create telnet ReadWriter with no options.
 	tn := telnet.NewReadWriter(conn)
@@ -26,14 +26,14 @@ func serve(conn net.Conn) {
 		if err == io.EOF {
 			return
 		}
-		log.Printf("Read '%s' {% [1]x} n=%d", buf[:n], n)
+		slog.Info("read", "data", buf[:n], "n", n)
 	}
 }
 
 func main() {
 	// Create TCP listener.
 	addr := net.JoinHostPort("127.0.0.1", "8023")
-	log.Printf("Listening on %s", addr)
+	slog.Info("listening", "addr", addr)
 	l, err := net.Listen("tcp", addr)
 	if err != nil {
 		panic(err)
@@ -42,10 +42,10 @@ func main() {
 	for {
 		conn, err := l.Accept()
 		if err != nil {
-			log.Printf("Accept error: %s", err)
+			slog.Error("accept error", "err", err)
 			continue
 		}
-		log.Printf("Accepted connection from %s", conn.RemoteAddr())
+		slog.Info("accepted connection", "addr", conn.RemoteAddr())
 		go serve(conn)
 	}
 }

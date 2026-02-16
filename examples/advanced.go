@@ -2,7 +2,7 @@ package main
 
 import (
 	"io"
-	"log"
+	"log/slog"
 	"net"
 	"os"
 	"time"
@@ -40,7 +40,7 @@ func negotiate(conn net.Conn, wait time.Duration, opts ...telnet.Option) (*telne
 
 func serve(conn net.Conn) {
 	defer conn.Close()
-	defer log.Printf("Connection from %s closed", conn.RemoteAddr())
+	defer slog.Info("connection closed", "addr", conn.RemoteAddr())
 
 	// Create telnet ReadWriter with character mode enabled.
 	term := &option.Term{}
@@ -63,7 +63,7 @@ func serve(conn net.Conn) {
 		if err == io.EOF {
 			return
 		}
-		log.Printf("Read '%s' {% [1]x} n=%d", buf[:n], n)
+		slog.Info("read", "data", buf[:n], "n", n)
 
 		for i := 0; i < n; i++ {
 			switch buf[i] {
@@ -88,18 +88,14 @@ func serve(conn net.Conn) {
 }
 
 func main() {
-	// Attach loggers to standard out for debugging.
-	for _, l := range []*log.Logger{
-		telnet.Trace,
-		telnet.Debug,
-		telnet.Error,
-	} {
-		l.SetOutput(os.Stdout)
-	}
+	// Configure slog for debug-level output.
+	slog.SetDefault(slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+		Level: slog.LevelDebug,
+	})))
 
 	// Create TCP listener.
 	addr := net.JoinHostPort("127.0.0.1", "8023")
-	log.Printf("Listening on %s", addr)
+	slog.Info("listening", "addr", addr)
 	l, err := net.Listen("tcp", addr)
 	if err != nil {
 		panic(err)
@@ -108,10 +104,10 @@ func main() {
 	for {
 		conn, err := l.Accept()
 		if err != nil {
-			log.Printf("Accept error: %s", err)
+			slog.Error("accept error", "err", err)
 			continue
 		}
-		log.Printf("Accepted connection from %s", conn.RemoteAddr())
+		slog.Info("accepted connection", "addr", conn.RemoteAddr())
 		go serve(conn)
 	}
 }

@@ -4,6 +4,8 @@
 
 package telnet
 
+import "log/slog"
+
 // readState is the state of the Reader.
 type readState uint
 
@@ -88,7 +90,7 @@ func (t *Ctx) read(b []byte) (n int, err error) {
 			case NOP:
 				// No operation
 			default:
-				Debug.Printf("Ignoring unhandled command %s", cmd)
+				slog.Debug("ignoring unhandled command", "cmd", cmd)
 				t.rs = rsData
 			}
 		case rsInd:
@@ -119,7 +121,7 @@ func (t *Ctx) read(b []byte) (n int, err error) {
 
 				t.rs = rsData
 			default:
-				Error.Printf("Unexpected byte 0x%x after %s in subnegotiation", buf[i], iac)
+				slog.Error("unexpected byte in subnegotiation", "byte", buf[i])
 				t.rs = rsIAC
 			}
 		}
