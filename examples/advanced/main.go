@@ -65,7 +65,7 @@ func serve(conn net.Conn) {
 		}
 		slog.Info("read", "data", buf[:n], "n", n)
 
-		for i := 0; i < n; i++ {
+		for i := range n {
 			switch buf[i] {
 			case 0x00, 0x0a:
 				// A null or newline indicates end of line
