@@ -101,6 +101,9 @@ func (t *Ctx) negotiate(cmd Command, code byte) (err error) {
 	s := t.os.load(code)
 	Trace.Printf("Received %s option %s", cmd, s.opt)
 
+	var callback func(*Ctx, bool)
+	var enabled bool
+
 	switch cmd {
 	case will:
 		// He is asking if he can enable an option or accepting our
@@ -112,7 +115,7 @@ func (t *Ctx) negotiate(cmd Command, code byte) (err error) {
 				s.him = nsYes
 
 				Debug.Printf("Option %s enabled for him", s.opt)
-				s.opt.SetHim(t, true)
+				callback, enabled = s.opt.SetHim, true
 			} else {
 				t.indicate(dont, code)
 			}
@@ -123,7 +126,7 @@ func (t *Ctx) negotiate(cmd Command, code byte) (err error) {
 			s.him = nsNo
 
 			Debug.Printf("Option %s disabled for him", s.opt)
-			s.opt.SetHim(t, false)
+			callback, enabled = s.opt.SetHim, false
 		case nsWantNoOpp:
 			err = fmt.Errorf("%s option %s answered by %s", dont, s.opt, will)
 			fallthrough
@@ -131,7 +134,7 @@ func (t *Ctx) negotiate(cmd Command, code byte) (err error) {
 			s.him = nsYes
 
 			Debug.Printf("Option %s enabled for him", s.opt)
-			s.opt.SetHim(t, true)
+			callback, enabled = s.opt.SetHim, true
 		case nsWantYesOpp:
 			t.indicate(dont, code)
 			s.him = nsWantNo
@@ -150,7 +153,7 @@ func (t *Ctx) negotiate(cmd Command, code byte) (err error) {
 			s.him = nsNo
 
 			Debug.Printf("Option %s disabled for him", s.opt)
-			s.opt.SetHim(t, false)
+			callback, enabled = s.opt.SetHim, false
 		case nsWantNoOpp:
 			t.indicate(do, code)
 			s.him = nsWantYes
@@ -165,7 +168,7 @@ func (t *Ctx) negotiate(cmd Command, code byte) (err error) {
 				s.us = nsYes
 
 				Debug.Printf("Option %s enabled for us", s.opt)
-				s.opt.SetUs(t, true)
+				callback, enabled = s.opt.SetUs, true
 			} else {
 				t.indicate(wont, code)
 			}
@@ -176,7 +179,7 @@ func (t *Ctx) negotiate(cmd Command, code byte) (err error) {
 			s.us = nsNo
 
 			Debug.Printf("Option %s disabled for us", s.opt)
-			s.opt.SetUs(t, false)
+			callback, enabled = s.opt.SetUs, false
 		case nsWantNoOpp:
 			err = fmt.Errorf("%s option %s answered by %s", wont, s.opt, do)
 			fallthrough
@@ -184,7 +187,7 @@ func (t *Ctx) negotiate(cmd Command, code byte) (err error) {
 			s.us = nsYes
 
 			Debug.Printf("Option %s enabled for us", s.opt)
-			s.opt.SetUs(t, true)
+			callback, enabled = s.opt.SetUs, true
 		case nsWantYesOpp:
 			t.indicate(wont, code)
 			s.us = nsWantNo
@@ -203,7 +206,7 @@ func (t *Ctx) negotiate(cmd Command, code byte) (err error) {
 			s.us = nsNo
 
 			Debug.Printf("Option %s disabled for us", s.opt)
-			s.opt.SetUs(t, false)
+			callback, enabled = s.opt.SetUs, false
 		case nsWantNoOpp:
 			t.indicate(will, code)
 			s.us = nsWantYes
@@ -211,6 +214,12 @@ func (t *Ctx) negotiate(cmd Command, code byte) (err error) {
 	}
 
 	t.os.store(s)
+
+	if callback != nil {
+		t.mu.Unlock()
+		callback(t, enabled)
+		t.mu.Lock()
+	}
 
 	return
 }
@@ -221,5 +230,7 @@ func (t *Ctx) subnegotiate(code byte, params []byte) {
 
 	Trace.Printf("Parameters\n%s", hex.Dump(params))
 
+	t.mu.Unlock()
 	s.opt.Params(t, params)
+	t.mu.Lock()
 }

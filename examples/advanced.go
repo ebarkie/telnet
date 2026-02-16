@@ -106,7 +106,11 @@ func main() {
 	}
 
 	for {
-		conn, _ := l.Accept()
+		conn, err := l.Accept()
+		if err != nil {
+			log.Printf("Accept error: %s", err)
+			continue
+		}
 		log.Printf("Accepted connection from %s", conn.RemoteAddr())
 		go serve(conn)
 	}

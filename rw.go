@@ -22,6 +22,13 @@ const (
 // data will be passed as-is.
 func (t *Ctx) Read(b []byte) (n int, err error) {
 	if len(b) > 0 {
+		// Drain pending data from a previous empty-buffer Read first.
+		if len(t.pending) > 0 {
+			n = copy(b, t.pending)
+			t.pending = t.pending[n:]
+			return
+		}
+
 		// The user is expecting at least one byte to be returned so keep
 		// reading until we get some data.
 		for err == nil && n < 1 {
@@ -29,7 +36,11 @@ func (t *Ctx) Read(b []byte) (n int, err error) {
 		}
 	} else {
 		buf := make([]byte, 16)
-		_, err = t.read(buf)
+		n, err = t.read(buf)
+		if n > 0 {
+			t.pending = append(t.pending, buf[:n]...)
+			n = 0
+		}
 	}
 
 	return
@@ -40,6 +51,7 @@ func (t *Ctx) read(b []byte) (n int, err error) {
 	var num int
 	num, err = t.rw.Read(buf)
 
+	t.mu.Lock()
 	for i := 0; i < num; i++ {
 		switch t.rs {
 		case rsData:
@@ -112,6 +124,7 @@ func (t *Ctx) read(b []byte) (n int, err error) {
 			}
 		}
 	}
+	t.mu.Unlock()
 
 	return
 }
@@ -120,20 +133,21 @@ func (t *Ctx) read(b []byte) (n int, err error) {
 //
 // Any Interpret as Command bytes are escaped and the result is written
 // using the Writer provided by the client.
-func (t Ctx) Write(b []byte) (int, error) {
-	buf := make([]byte, len(b))
-	var n int
-	for i := 0; i < len(b); i++ {
-		buf[n] = b[i]
-		n++
-
-		if b[i] == byte(iac) {
-			buf = append(buf, 0)
-			copy(buf[n+1:], buf[n:])
-			buf[n] = b[i]
-			n++
+func (t *Ctx) Write(b []byte) (int, error) {
+	buf := make([]byte, 0, len(b))
+	for _, c := range b {
+		buf = append(buf, c)
+		if c == byte(iac) {
+			buf = append(buf, c)
 		}
 	}
 
-	return t.rw.Write(buf)
+	t.mu.Lock()
+	_, err := t.rw.Write(buf)
+	t.mu.Unlock()
+
+	if err != nil {
+		return 0, err
+	}
+	return len(b), nil
 }

@@ -9,7 +9,10 @@
 //  RFC1143 The Q Method of Implementing TELNET Option Negotiation
 package telnet
 
-import "io"
+import (
+	"io"
+	"sync"
+)
 
 //go:generate stringer -type Command
 
@@ -87,6 +90,8 @@ func (os optStates) store(s optState) {
 
 // Ctx is a telnet context.
 type Ctx struct {
+	mu sync.Mutex
+
 	// rw is the ReadWriter provided by the client.  Since telnet runs
 	// over TCP this is typically a net.Conn.
 	rw io.ReadWriter
@@ -100,6 +105,10 @@ type Ctx struct {
 
 	// os holds the state of each option.
 	os optStates
+
+	// pending holds data parsed during an empty-buffer Read that would
+	// otherwise be discarded.
+	pending []byte
 }
 
 // NewReadWriter allocates a new ReadWriter that intercepts and handles
@@ -117,7 +126,10 @@ func NewReadWriter(rw io.ReadWriter, opts ...Option) *Ctx {
 }
 
 // AskHim asks him to enable or disable an option.
-func (t Ctx) AskHim(opt Option, enable bool) error {
+func (t *Ctx) AskHim(opt Option, enable bool) error {
+	t.mu.Lock()
+	defer t.mu.Unlock()
+
 	if enable {
 		return t.ask(do, opt)
 	}
@@ -126,7 +138,10 @@ func (t Ctx) AskHim(opt Option, enable bool) error {
 }
 
 // AskUs asks if we can enable or disable an option.
-func (t Ctx) AskUs(opt Option, enable bool) error {
+func (t *Ctx) AskUs(opt Option, enable bool) error {
+	t.mu.Lock()
+	defer t.mu.Unlock()
+
 	if enable {
 		return t.ask(will, opt)
 	}
@@ -135,12 +150,18 @@ func (t Ctx) AskUs(opt Option, enable bool) error {
 }
 
 // SendCmd sends a line mode command signal.
-func (t Ctx) SendCmd(cmd Command) {
+func (t *Ctx) SendCmd(cmd Command) {
+	t.mu.Lock()
+	defer t.mu.Unlock()
+
 	t.rw.Write([]byte{byte(iac), byte(cmd)})
 }
 
 // SendParams sends option subnegotiation parameters.
-func (t Ctx) SendParams(opt Option, params []byte) {
+func (t *Ctx) SendParams(opt Option, params []byte) {
+	t.mu.Lock()
+	defer t.mu.Unlock()
+
 	t.rw.Write([]byte{byte(iac), byte(sb), opt.Byte()})
 	t.rw.Write(params)
 	t.rw.Write([]byte{byte(iac), byte(se)})
