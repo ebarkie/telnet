@@ -35,9 +35,9 @@ const _Command_name = "EOFSPAPEORseNOPDMBRKIPAOAYTECELGAsbwillwontdodontiac"
 var _Command_index = [...]uint8{0, 3, 5, 7, 10, 12, 15, 17, 20, 22, 24, 27, 29, 31, 33, 35, 39, 43, 45, 49, 52}
 
 func (i Command) String() string {
-	i -= 236
-	if i >= Command(len(_Command_index)-1) {
-		return "Command(" + strconv.FormatInt(int64(i+236), 10) + ")"
+	idx := int(i) - 236
+	if i < 236 || idx >= len(_Command_index)-1 {
+		return "Command(" + strconv.FormatInt(int64(i), 10) + ")"
 	}
-	return _Command_name[_Command_index[i]:_Command_index[i+1]]
+	return _Command_name[_Command_index[idx]:_Command_index[idx+1]]
 }
